@@ -1,0 +1,243 @@
+-- ============================================
+--  EJEMPLO BASE DE DATOS PARA HOSPITAL DE ALTA COMPLEJIDAD
+--  Autor: Kevin Jesus Almario O.
+--  Fecha: 2025-10-27
+-- ============================================
+
+
+DROP DATABASE IF EXISTS HospitalBQ;
+CREATE DATABASE HospitalBQ;
+USE HospitalBQ;
+
+-- ============================================
+-- Creacion de Tabla Especialidades
+-- ============================================
+CREATE TABLE Especialidades (
+    id_especialidad INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT
+);
+
+-- ============================================
+-- Inserccion de datos en tabla Especialidades
+-- ============================================
+INSERT INTO Especialidades (nombre, descripcion) VALUES
+('Cardiología', 'Tratamiento de enfermedades del corazón'),
+('Pediatría', 'Atención médica a niños'),
+('Neurología', 'Trastornos del sistema nervioso'),
+('Oncología', 'Tratamiento de cáncer'),
+('Medicina Interna', 'Atención general de adultos'),
+('Traumatología', 'Lesiones óseas y musculares'),
+('Ginecología', 'Salud reproductiva femenina'),
+('Psiquiatría', 'Trastornos mentales y emocionales');
+
+-- ============================================
+-- Creacion de tabla Doctores
+-- ============================================
+CREATE TABLE Doctores (
+    id_doctor INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    telefono VARCHAR(15),
+    correo VARCHAR(100) UNIQUE,
+    id_especialidad INT,
+    FOREIGN KEY (id_especialidad) REFERENCES Especialidades(id_especialidad)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+);
+-- ============================================
+-- Inserccion de datos en tabla Doctores
+-- ============================================
+INSERT INTO Doctores (nombre, apellido, telefono, correo, id_especialidad) VALUES
+('Ana', 'Pérez', '3001112233', 'ana.perez@hospital.com', 1),
+('Carlos', 'Gómez', '3102223344', 'carlos.gomez@hospital.com', 2),
+('Javier', 'Ramírez', '3203334455', 'javier.ramirez@hospital.com', 3),
+('Diana', 'Lozano', '3104445566', 'diana.lozano@hospital.com', 4),
+('Andrés', 'Moreno', '3005556677', 'andres.moreno@hospital.com', 5),
+('Luisa', 'Torres', '3106667788', 'luisa.torres@hospital.com', 6),
+('Marta', 'Rojas', '3207778899', 'marta.rojas@hospital.com', 7),
+('Diego', 'Hernández', '3118889900', 'diego.hernandez@hospital.com', 8);
+('Kevin', 'Almario', '3107095196', 'kevin.almario@hospital.com', 3);
+
+-- ============================================
+-- Creacion de Tabla Habitaciones
+-- ============================================
+CREATE TABLE Habitaciones (
+    id_habitacion INT AUTO_INCREMENT PRIMARY KEY,
+    numero_habitacion VARCHAR(10) UNIQUE NOT NULL,
+    tipo ENUM('UCI', 'General', 'Maternidad', 'Pediátrica', 'Aislamiento') NOT NULL,
+    estado ENUM('Disponible', 'Ocupada', 'Mantenimiento') DEFAULT 'Disponible'
+);
+-- ============================================
+-- Inserccion de datos en tabla Habitaciones
+-- ============================================
+INSERT INTO Habitaciones (numero_habitacion, tipo, estado) VALUES
+('101', 'General', 'Disponible'),
+('102', 'General', 'Ocupada'),
+('201', 'UCI', 'Ocupada'),
+('202', 'UCI', 'Disponible'),
+('301', 'Maternidad', 'Disponible'),
+('302', 'Pediátrica', 'Ocupada'),
+('401', 'Aislamiento', 'Disponible'),
+('402', 'Aislamiento', 'Disponible');
+
+-- ============================================
+-- Creacion de Tabla pacientes
+-- ============================================
+CREATE TABLE Pacientes (
+    id_paciente INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    genero ENUM('Masculino', 'Femenino', 'Otro') NOT NULL,
+    direccion VARCHAR(255),
+    telefono VARCHAR(15),
+    tipo_sangre VARCHAR(5),
+    fecha_ingreso DATE DEFAULT CURRENT_DATE,
+    id_habitacion INT NULL,
+    FOREIGN KEY (id_habitacion) REFERENCES Habitaciones(id_habitacion)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+);
+
+-- ============================================
+-- Inserccion de datos en tabla tabla pacientes
+-- ============================================
+INSERT INTO Pacientes (nombre, apellido, fecha_nacimiento, genero, direccion, telefono, tipo_sangre, id_habitacion) VALUES
+('Laura', 'Martínez', '1990-07-12', 'Femenino', 'Cra 10 #5-23', '3115678901', 'O+', 2),
+('Pedro', 'López', '1985-06-10', 'Masculino', 'Calle 23 #7-90', '3124567890', 'A+', 3),
+('Lucía', 'Mendoza', '2001-03-05', 'Femenino', 'Av 5 #22-14', '3001239876', 'B-', 6),
+('Ricardo', 'Díaz', '1975-09-19', 'Masculino', 'Calle 8 #9-15', '3101112233', 'AB+', 1),
+('Sara', 'Cruz', '1995-11-02', 'Femenino', 'Cra 45 #15-32', '3204445566', 'O-', 5);
+
+-- ============================================
+-- Creacion de tabla Medicamentos
+-- ============================================
+CREATE TABLE Medicamentos (
+    id_medicamento INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    dosis_recomendada VARCHAR(50),
+    presentacion ENUM('Tableta', 'Jarabe', 'Inyección', 'Cápsula', 'Pomada'),
+    stock INT DEFAULT 0,
+    fecha_vencimiento DATE
+);
+-- ============================================
+-- Inserccion de datos en tabla tabla Medicamentos
+-- ============================================
+INSERT INTO Medicamentos (nombre, descripcion, dosis_recomendada, presentacion, stock, fecha_vencimiento) VALUES
+('Paracetamol', 'Analgésico y antipirético', '500 mg cada 8h', 'Tableta', 200, '2026-05-01'),
+('Amoxicilina', 'Antibiótico de amplio espectro', '500 mg cada 12h', 'Cápsula', 150, '2025-12-31'),
+('Ibuprofeno', 'Antiinflamatorio no esteroideo', '400 mg cada 8h', 'Tableta', 300, '2027-01-01'),
+('Omeprazol', 'Inhibidor de la bomba de protones', '20 mg al día', 'Cápsula', 250, '2026-08-15'),
+('Loratadina', 'Antialérgico', '10 mg al día', 'Tableta', 180, '2027-03-10'),
+('Metformina', 'Antidiabético oral', '850 mg cada 12h', 'Tableta', 400, '2025-09-30'),
+('Furosemida', 'Diurético', '40 mg al día', 'Tableta', 120, '2026-12-01'),
+('Cefalexina', 'Antibiótico', '500 mg cada 8h', 'Cápsula', 130, '2026-10-20');
+
+-- ============================================
+-- Creacion de tabla Citas
+-- ============================================
+CREATE TABLE Citas (
+    id_cita INT AUTO_INCREMENT PRIMARY KEY,
+    id_paciente INT NOT NULL,
+    id_doctor INT NOT NULL,
+    fecha_cita DATETIME NOT NULL,
+    motivo_consulta VARCHAR(255),
+    estado ENUM('Programada', 'Completada', 'Cancelada') DEFAULT 'Programada',
+    FOREIGN KEY (id_paciente) REFERENCES Pacientes(id_paciente)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FOREIGN KEY (id_doctor) REFERENCES Doctores(id_doctor)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+-- ============================================
+-- Inserccion de datos en tablatabla Citas
+-- ============================================
+INSERT INTO Citas (id_paciente, id_doctor, fecha_cita, motivo_consulta, estado) VALUES
+(1, 1, '2025-10-27 09:00:00', 'Dolor torácico', 'Completada'),
+(2, 2, '2025-10-28 10:30:00', 'Fiebre y dolor de garganta', 'Programada'),
+(3, 3, '2025-10-29 08:15:00', 'Dolores de cabeza frecuentes', 'Programada'),
+(4, 4, '2025-10-30 14:00:00', 'Control postoperatorio', 'Completada'),
+(5, 5, '2025-11-01 11:00:00', 'Chequeo general', 'Programada');
+
+-- ============================================
+-- Creacion de Tablas Tratamientos
+-- ============================================
+CREATE TABLE Tratamientos (
+    id_tratamiento INT AUTO_INCREMENT PRIMARY KEY,
+    id_paciente INT NOT NULL,
+    id_doctor INT NULL,
+    id_medicamento INT NULL,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE,
+    dosis_diaria VARCHAR(50),
+    observaciones TEXT,
+    FOREIGN KEY (id_paciente) REFERENCES Pacientes(id_paciente)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FOREIGN KEY (id_doctor) REFERENCES Doctores(id_doctor)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL,
+    FOREIGN KEY (id_medicamento) REFERENCES Medicamentos(id_medicamento)
+        ON UPDATE CASCADE
+        ON DELETE SET NULL
+);
+
+-- ============================================
+-- Inserccion de datos en tabla Tablas Tratamientos
+-- ============================================
+INSERT INTO Tratamientos (id_paciente, id_doctor, id_medicamento, fecha_inicio, fecha_fin, dosis_diaria, observaciones) VALUES
+(1, 1, 1, '2025-10-27', '2025-11-03', '500 mg cada 8h', 'Tomar después de las comidas'),
+(2, 2, 2, '2025-10-28', '2025-11-05', '500 mg cada 12h', 'Completar el tratamiento de antibiótico'),
+(3, 3, 3, '2025-10-29', NULL, '400 mg cada 8h', 'En caso de dolor fuerte, tomar antes de dormir'),
+(4, 4, 4, '2025-10-25', '2025-10-31', '20 mg al día', 'Tomar en ayunas'),
+(5, 5, 5, '2025-11-01', NULL, '10 mg al día', 'No exceder la dosis recomendada');
+
+-- ================================================================================================================================
+-- Consultas básicas
+SELECT * FROM Pacientes;
+
+SELECT d.id_doctor, d.nombre, d.apellido, e.nombre AS especialidad
+FROM Doctores d LEFT JOIN Especialidades e ON d.id_especialidad = e.id_especialidad;
+SELECT nombre, presentacion, stock FROM Medicamentos WHERE stock > 0 ORDER BY nombre ASC;
+SELECT numero_habitacion, tipo, estado FROM Habitaciones WHERE estado = 'Ocupada';
+
+-- Consultas con condiciones
+SELECT nombre, apellido, tipo_sangre FROM Pacientes WHERE genero = 'Femenino';
+SELECT d.nombre, d.apellido FROM Doctores d INNER JOIN Especialidades e ON d.id_especialidad = e.id_especialidad WHERE e.nombre = 'Cardiología';
+SELECT nombre, fecha_vencimiento FROM Medicamentos WHERE YEAR(fecha_vencimiento) = 2025;
+
+-- Ordenamiento y límites
+SELECT nombre, apellido, fecha_ingreso FROM Pacientes ORDER BY fecha_ingreso DESC LIMIT 5;
+SELECT nombre, stock FROM Medicamentos ORDER BY stock ASC LIMIT 5;
+
+-- Consultas con JOIN
+SELECT c.id_cita, CONCAT(p.nombre, ' ', p.apellido) AS paciente, CONCAT(d.nombre, ' ', d.apellido) AS doctor, c.fecha_cita, c.motivo_consulta, c.estado
+FROM Citas c INNER JOIN Pacientes p ON c.id_paciente = p.id_paciente INNER JOIN Doctores d ON c.id_doctor = d.id_doctor ORDER BY c.fecha_cita DESC;
+
+SELECT t.id_tratamiento, CONCAT(p.nombre, ' ', p.apellido) AS paciente, CONCAT(d.nombre, ' ', d.apellido) AS doctor, m.nombre AS medicamento, t.fecha_inicio, t.fecha_fin, t.dosis_diaria, t.observaciones
+FROM Tratamientos t LEFT JOIN Pacientes p ON t.id_paciente = p.id_paciente LEFT JOIN Doctores d ON t.id_doctor = d.id_doctor LEFT JOIN Medicamentos m ON t.id_medicamento = m.id_medicamento;
+
+SELECT p.nombre AS paciente, p.apellido, h.numero_habitacion, h.tipo, h.estado
+FROM Pacientes p LEFT JOIN Habitaciones h ON p.id_habitacion = h.id_habitacion;
+
+-- Funciones agregadas
+SELECT genero, COUNT(*) AS total FROM Pacientes GROUP BY genero;
+SELECT e.nombre AS especialidad, COUNT(d.id_doctor) AS total_doctores
+FROM Doctores d INNER JOIN Especialidades e ON d.id_especialidad = e.id_especialidad GROUP BY e.nombre ORDER BY total_doctores DESC;
+SELECT SUM(stock) AS total_medicamentos FROM Medicamentos;
+SELECT estado, COUNT(*) AS total FROM Citas GROUP BY estado;
+
+-- Administración
+UPDATE Habitaciones SET estado = 'Ocupada' WHERE numero_habitacion = '101';
+UPDATE Medicamentos SET stock = stock - 1 WHERE id_medicamento = 1;
+DELETE FROM Citas WHERE estado = 'Cancelada';
+
+-- Consultas combinadas
+SELECT p.id_paciente, CONCAT(p.nombre, ' ', p.apellido) AS paciente, COUNT(t.id_tratamiento) AS total_tratamientos
+FROM Tratamientos t INNER JOIN Pacientes p ON t.id_paciente = p.id_paciente GROUP BY p.id_paciente HAVING COUNT(t.id_tratamiento) > 1;
+
+SELECT DISTINCT m.nombre AS medicamento
+FROM Tratamientos t INNER JOIN Medicamentos m ON t.id_medicamento = m.id_medicamento WHERE t.fecha_fin IS NULL;

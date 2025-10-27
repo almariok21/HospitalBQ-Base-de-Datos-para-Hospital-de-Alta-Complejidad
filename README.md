@@ -1,0 +1,2 @@
+# HospitalBQ-Base-de-Datos-para-Hospital-de-Alta-Complejidad
+Este repositorio contiene un ejemplo completo de una base de datos para un hospital de alta complejidad, diseñada para gestionar información sobre pacientes, doctores, especialidades, medicamentos, habitaciones, citas y tratamientos médicos. La base de datos está pensada para uso académico, de pruebas o demostraciones de sistemas hospitalarios.
